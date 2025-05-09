@@ -89,6 +89,14 @@ func CacheHandler(c *gin.Context) {
 		return
 	}
 
+	// Get headers from the request
+	headers := make(map[string]string)
+	for key, values := range c.Request.Header {
+		if len(values) > 0 && len(key) > 2 && (key[:2] == "X-" || key[:2] == "x-") {
+			headers[key] = values[0]
+		}
+	}
+
 	// If not found, generate a new value (example: timestamp)
 	cleanedPath := requestedPath
 	if len(cleanedPath) > 0 && cleanedPath[0] == '/' {
@@ -96,7 +104,7 @@ func CacheHandler(c *gin.Context) {
 	}
 	url := fmt.Sprintf("%s/%s?%s", env.Get("BACKEND_ENDPOINT", ""), cleanedPath, queryParams.Encode())
 	logger.Info("Calling web service:", url)
-	newValue, err := callWebService(url)
+	newValue, err := callWebService(url, headers)
 
 	if err != nil {
 		logger.Error("Failed to call web service:", err)
@@ -140,11 +148,16 @@ func CacheHandler(c *gin.Context) {
 }
 
 // callWebService makes an HTTP GET request to the given URL and parses the JSON response.
-func callWebService(url string) (interface{}, error) {
+func callWebService(url string, headers map[string]string) (interface{}, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	// Inject headers into the request if they exist
+	for key, value := range headers {
+		req.Header.Set(key, value)
 	}
 
 	resp, err := client.Do(req)

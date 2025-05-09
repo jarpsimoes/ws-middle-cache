@@ -1,0 +1,21 @@
+replicaCount: 1
+
+image:
+  repository: your-docker-repo/ws-middle-cache
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+env:
+  PORT: 8080
+  BACKEND_ENDPOINT: https://example.com
+  CACHE_EXPIRATION_SECONDS: 600
+  AZURE_STORAGE_ACCOUNT_NAME: your_account_name
+  AZURE_STORAGE_ACCOUNT_KEY: your_account_key
+  AZURE_STORAGE_ACCOUNT_TABLE_NAME: cachetable
+  LOG_LEVEL: INFO
+
+resources: {}

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: ws-middle-cache
+description: A Helm chart for deploying the WS Middle Cache Layer application
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
